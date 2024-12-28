@@ -33,19 +33,21 @@ class ProcessExcelImport implements ShouldQueue
     // المعالجة الفعلية للملف
     public function handle()
     {
-        $batchSize = 1000; // حجم الدفعة (يمكن تعديله حسب الحاجة)
+        $batchSize = 500; // حجم الدفعة (يمكن تعديله حسب الحاجة)
 
         // قراءة البيانات من ملف الإكسل
         Excel::import(new TempsImport($this->uuid), storage_path('app/' . $this->filePath));
 
         $records = collect();
 
-        // تقسيم المعالجة إلى دفعات من 1000 صف
+        // تقسيم المعالجة إلى دفعات من 500 صف
         Temp::where('xlxs_uuid', $this->uuid)->chunk($batchSize, function ($rows) use ($records) {
             // جلب الأشخاص مع الزوجات
             $persons = Person::with(['relatives' => function ($query) {
                 $query->where('CF_RELATIVE_CD', 4);
             }])->whereIn('CI_ID_NUM', $rows->pluck('national_id')->toArray())->get();
+
+            // dd($rows->pluck('national_id')->toArray());
 
             /** @var Temp $row */
             foreach ($persons as $person) {
@@ -55,7 +57,7 @@ class ProcessExcelImport implements ShouldQueue
                     $CI_ID_NUM = $person->CI_ID_NUM;
                     $full_name = $person->full_name;
                     $phone_number = $row->phone_number;
-                    $total_members = $row->family_count;
+                    $family_count = $row->family_count;
                     $male_members = null;
                     $female_members = null;
                     $wife_name =null;
@@ -74,7 +76,7 @@ class ProcessExcelImport implements ShouldQueue
                         'CI_ID_NUM' => $CI_ID_NUM,
                         'full_name' => $full_name,
                         'phone_number' => $phone_number,
-                        'family_count' => $person->family_count,
+                        'family_count' => $family_count,
                         'male_members' => $male_members,
                         'female_members' => $female_members,
                         'wife_id' => $wife_id ?? null,

@@ -33,19 +33,24 @@ class TempsImport implements ToModel, withStartRow, WithUpserts
 
         return new Temp([
             'xlxs_uuid' => $this->uuid,
-            'no' => trim($row[0]),
-            'national_id' => trim($row[1]),
-            'full_name' => trim($row[2]),
-            'phone_number' => trim($row[3]),
-            'alternative_phone_number' => ((int) trim($row[4])) ? trim($row[4]) : null,
-            'family_count' => trim($row[5]),
-            'gathering_name' => trim($row[6]),
+            // 'no' => trim($row[0]),
+            'national_id' => trim($row[0]),
+            'full_name' => trim($row[1]),
+            'phone_number' => trim($row[2]),
+            // 'alternative_phone_number' => ((int) trim($row[3])) ? trim($row[3]) : null,
+            'family_count' => (int) trim($row[3]),
+            // 'gathering_name' => trim($row[6]),
+            'wife_id' => trim($row[4]),
+            'wife_name' => trim($row[5]),
+            'male_members' => (int) trim($row[6]),
+            'female_members' => (int) trim($row[6]),
+
         ]);
     }
 
     public function startRow(): int
     {
-        return 2;
+        return 1;
     }
 
     public function uniqueBy(): string

@@ -13,21 +13,22 @@ return new class extends Migration
     {
         Schema::create('temps', function (Blueprint $table) {
             $table->id();
-            $table->string('no')->nullable();
             // رقم الهوية
-            $table->string('national_id')
-                ->index()
-                ->unique();
+            $table->string('national_id')->index()->unique();
             // الاسم رباعي
             $table->string('full_name');
             // رقم الجوال
             $table->string('phone_number');
-            // الجوال البديل
-            $table->string('alternative_phone_number')->nullable();
             // عدد الافراد
             $table->integer('family_count');
-            // اسم التجمع
-            $table->string('gathering_name');
+            //رقم هوية الزوجة
+            $table->string('wife_id')->nullable();
+            // اسم الزوجة رباعي
+            $table->string('wife_name', 255)->nullable();
+            //عدد الأفراد الذكور
+            $table->integer('male_members')->nullable();
+            // عدد الأفراد الإناث
+            $table->integer('female_members')->nullable();
 
             $table->string('xlxs_uuid')->nullable();
             $table->timestamps();

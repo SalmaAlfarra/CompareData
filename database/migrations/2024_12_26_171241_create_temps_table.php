@@ -23,11 +23,9 @@ return new class extends Migration
             // رقم الجوال
             $table->string('phone_number');
             // الجوال البديل
-            $table->string('alternative_phone_number')->nullable();
             // عدد الافراد
             $table->integer('family_count');
             // اسم التجمع
-            $table->string('gathering_name');
 
             $table->string('xlxs_uuid')->nullable();
             $table->timestamps();

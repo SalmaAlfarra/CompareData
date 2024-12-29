@@ -26,26 +26,23 @@ class TempsImport implements ToModel, withStartRow, WithUpserts
      */
     public function model(array $row): Model|Temp|null
     {
-        if (empty(trim($row[1]))) {
-            Log::warning("Skipping Row #" . ($row[2]) . " due to missing national_id");
+        if (empty(trim($row[0]))) {
+            Log::warning("Skipping  \"" . ($row[1]) . "\" due to missing national_id");
             return null;
         }
 
         return new Temp([
             'xlxs_uuid' => $this->uuid,
-            'no' => trim($row[0]),
-            'national_id' => trim($row[1]),
-            'full_name' => trim($row[2]),
-            'phone_number' => trim($row[3]),
-            'alternative_phone_number' => ((int) trim($row[4])) ? trim($row[4]) : null,
-            'family_count' => trim($row[5]),
-            'gathering_name' => trim($row[6]),
+            'national_id' => trim($row[0]),
+            'full_name' => trim($row[1]),
+            'phone_number' => trim($row[2]),
+            'family_count' => trim($row[3]),
         ]);
     }
 
     public function startRow(): int
     {
-        return 2;
+        return 1;
     }
 
     public function uniqueBy(): string

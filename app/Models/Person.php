@@ -37,4 +37,14 @@ class Person extends Model
 
     // تعطيل استخدام الـ timestamps لأن الجدول لا يحتوي على أعمدة created_at و updated_at
     public $timestamps = false;
+
+    public function relatives()
+    {
+        return $this->hasManyThrough(Person::class, Relation::class, 'CF_ID_NUM', 'CI_ID_NUM', 'CI_ID_NUM', 'CF_ID_RELATIVE');
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return $this->CI_FIRST_ARB . ' ' . $this->CI_FATHER_ARB . ' ' . $this->CI_GRAND_FATHER_ARB . ' ' . $this->CI_FAMILY_ARB;
+    }
 }

@@ -4,8 +4,8 @@ namespace App\Jobs;
 
 use App\Imports\TempsImport;
 use App\Models\Person;
-use App\Models\Relation;
 use App\Models\Temp;
+use App\Models\Data; // التأكد من استيراد نموذج بيانات قاعدة البيانات
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,29 +31,35 @@ class ProcessExcelImport implements ShouldQueue
 
     public function handle()
     {
-        $batchSize = 1000; // Batch size for processing
-        $processedRecords = collect(); // Collection to store processed data
+        ini_set('max_execution_time', 2700); // زيادة الحد الزمني للتنفيذ
+        $batchSize = 50; // تقليل حجم الدفعة لتحسين الأداء
+        $processedRecords = collect(); // تخزين البيانات المعالجة
 
-        // Import the temporary data from the Excel file
+        // استيراد البيانات من Excel
         Excel::import(new TempsImport($this->uuid), storage_path('app/' . $this->filePath));
 
-        dd(Temp::count());
-        // Process the Temp data in chunks
-        Temp::where('xlxs_uuid', $this->uuid)->chunk($batchSize, function ($rows) use (&$processedRecords) {
+        // تسجيل عدد السجلات قبل البدء
+        $rowsCount = Temp::where('xlxs_uuid', $this->uuid)->count();
+        Log::info("Total rows to process: " . $rowsCount);
+
+        // معالجة البيانات على دفعات
+        Temp::where('xlxs_uuid', $this->uuid)->orderBy('id')->chunkById($batchSize, function ($rows) use (&$processedRecords) {
+            Log::info("Processing batch with " . count($rows) . " rows.");
+
             $persons = Person::with(['relatives' => function ($query) {
-                $query->where('CF_RELATIVE_CD', 4); // Filter for wives
+                $query->where('CF_RELATIVE_CD', 4); // تحديد الزوجات
             }])->whereIn('CI_ID_NUM', $rows->pluck('national_id')->toArray())->get();
 
-            /** @var Temp $row */
             foreach ($persons as $person) {
                 try {
                     $row = $rows->firstWhere('national_id', $person->CI_ID_NUM);
 
+                    // إضافة السجلات إلى المجموعة المعالجة
                     $processedRecords->push([
                         'CI_ID_NUM' => $person->CI_ID_NUM,
                         'full_name' => $person->full_name,
-                        'phone_number' => $row->phone_number,
-                        'family_count' => $row->family_count,
+                        'phone_number' => $row->phone_number ?? null,
+                        'family_count' => $row->family_count ?? null,
                         'male_members' => null,
                         'female_members' => null,
                         'wife_id' => $person->relatives->isNotEmpty() ? $person->relatives->first()->CI_ID_NUM : null,
@@ -63,30 +69,20 @@ class ProcessExcelImport implements ShouldQueue
                     Log::error("Error processing person: " . $e->getMessage());
                 }
             }
+
+            // تخزين البيانات في قاعدة البيانات بعد كل دفعة
+            if ($processedRecords->isNotEmpty()) {
+                Data::upsert($processedRecords->toArray(), ['CI_ID_NUM'], [
+                    'CI_ID_NUM', 'full_name', 'phone_number', 'family_count', 'male_members', 'female_members', 'wife_id', 'wife_name'
+                ]);
+                Log::info("Processed " . count($processedRecords) . " records.");
+            }
+
+            // تفريغ البيانات المخزنة مؤقتًا بعد كل دفعة لتقليل استهلاك الذاكرة
+            $processedRecords = collect();
         });
 
-        // Export directly to Excel
-        $fileName = 'processed_data_' . time() . '.xlsx';
-        Excel::store(new class($processedRecords) implements FromCollection, WithHeadings {
-            protected $records;
-
-            public function __construct($records)
-            {
-                $this->records = $records;
-            }
-
-            public function collection()
-            {
-                return $this->records;
-            }
-
-            public function headings(): array
-            {
-                return array_keys($this->records->first());
-            }
-        }, $fileName, 'public');
-
-
-        Log::info("Import process completed. Data exported to: " . $fileName);
+        // تسجيل رسالة عند اكتمال المعالجة
+        Log::info("Import process completed.");
     }
 }

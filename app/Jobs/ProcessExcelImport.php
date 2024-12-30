@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Imports\TempsImport;
+use App\Models\Data;
 use App\Models\Person;
 use App\Models\Relation;
 use App\Models\Temp;
@@ -31,13 +32,12 @@ class ProcessExcelImport implements ShouldQueue
 
     public function handle()
     {
-        $batchSize = 1000; // Batch size for processing
+        $batchSize = 8000; // Batch size for processing
         $processedRecords = collect(); // Collection to store processed data
 
         // Import the temporary data from the Excel file
         Excel::import(new TempsImport($this->uuid), storage_path('app/' . $this->filePath));
 
-        dd(Temp::count());
         // Process the Temp data in chunks
         Temp::where('xlxs_uuid', $this->uuid)->chunk($batchSize, function ($rows) use (&$processedRecords) {
             $persons = Person::with(['relatives' => function ($query) {
@@ -64,6 +64,15 @@ class ProcessExcelImport implements ShouldQueue
                 }
             }
         });
+
+
+        if ($processedRecords->isNotEmpty()) {
+            Data::upsert($processedRecords->toArray(), ['CI_ID_NUM'], [
+                'CI_ID_NUM', 'full_name', 'phone_number', 'family_count', 'male_members', 'female_members', 'wife_id', 'wife_name'
+            ]);
+            Log::info("Processed " . count($processedRecords) . " records.");
+        }
+
 
         // Export directly to Excel
         $fileName = 'processed_data_' . time() . '.xlsx';

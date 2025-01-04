@@ -14,19 +14,20 @@ return new class extends Migration
         Schema::create('temps', function (Blueprint $table) {
             $table->id();
             $table->string('no')->nullable();
-            // رقم الهوية
-            $table->string('national_id')
-                ->index()
-                ->unique();
-            // الاسم رباعي
-            $table->string('full_name');
-            // رقم الجوال
-            $table->string('phone_number');
-            // الجوال البديل
-            // عدد الافراد
-            $table->integer('family_count');
-            // اسم التجمع
-
+            $table->string('CI_ID_NUM')->index()->unique();
+            $table->string('Full_name');
+            $table->string('Phone_number')->nullable();
+            $table->integer('Family_count')->nullable();
+            $table->string('Wife_id')->nullable();
+            $table->string('Wife_name', 255)->nullable();
+            $table->integer('Male_members')->nullable();
+            $table->integer('Female_members')->nullable();
+            $table->integer('Individuals_less_than_3_years')->nullable();
+            $table->integer('Individuals_with_chronic_diseases')->nullable();
+            $table->integer('Individuals_with_disabilities')->nullable();
+            $table->string('Breadwinner', 255)->nullable();
+            $table->string('Housing_condition', 255)->nullable();
+            $table->string('Notes', 255)->nullable();
             $table->string('xlxs_uuid')->nullable();
             $table->timestamps();
         });

@@ -13,13 +13,22 @@ return new class extends Migration
     {
         Schema::create('data', function (Blueprint $table) {
             $table->integer('CI_ID_NUM')->primary();
-            $table->string('full_name', 255)->nullable();
-            $table->string('phone_number', 20)->nullable();
-            $table->integer('family_count')->nullable();
-            $table->integer('wife_id')->nullable();
-            $table->string('wife_name', 255)->nullable();
-            $table->integer('male_members')->nullable();
-            $table->integer('female_members')->nullable();
+            $table->string('CI_FIRST_ARB', 255)->nullable();
+            $table->string('CI_FATHER_ARB', 255)->nullable();
+            $table->string('CI_GRAND_FATHER_ARB', 255)->nullable();
+            $table->string('CI_FAMILY_ARB', 255)->nullable();
+            $table->string('Phone_number', 20)->nullable();
+            $table->integer('Family_count')->nullable();
+            $table->integer('Wife_id')->nullable();
+            $table->string('Wife_name', 255)->nullable();
+            $table->integer('Male_members')->nullable();
+            $table->integer('Female_members')->nullable();
+            $table->integer('Individuals_less_than_3_years')->nullable();
+            $table->integer('Individuals_with_chronic_diseases')->nullable();
+            $table->integer('Individuals_with_disabilities')->nullable();
+            $table->string('Breadwinner', 255)->nullable();
+            $table->string('Housing_condition', 255)->nullable();
+            $table->string('Notes', 255)->nullable();
         });
     }
 

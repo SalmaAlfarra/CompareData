@@ -5,7 +5,6 @@ namespace App\Imports;
 use App\Models\Temp;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithUpserts;
@@ -27,26 +26,36 @@ class TempsImport implements ToModel, withStartRow, WithUpserts
     public function model(array $row): Model|Temp|null
     {
         if (empty(trim($row[0]))) {
-            Log::warning("Skipping  \"" . ($row[1]) . "\" due to missing national_id");
+            Log::warning("Skipping  \"" . ($row[1]) . "\" due to missing CI_ID_NUM");
             return null;
         }
 
         return new Temp([
             'xlxs_uuid' => $this->uuid,
-            'national_id' => trim($row[0]),
-            'full_name' => trim($row[1]),
-            'phone_number' => trim($row[2]),
-            'family_count' => trim($row[3]),
+            'CI_ID_NUM' => trim($row[0]),
+            'Full_name' => trim($row[1]),
+            'Phone_number' => trim($row[2]),
+            'Family_count' => (int) trim($row[3]),
+            'Wife_id' => trim($row[4]),
+            'Wife_name' => trim($row[5]),
+            'Male_members' => (int) trim($row[6]),
+            'Female_members' => (int) trim($row[7]),
+            'Individuals_less_than_3_years' => (int) trim($row[8]),
+            'Individuals_with_chronic_diseases' => (int) trim($row[9]),
+            'Individuals_with_disabilities' => (int) trim($row[10]),
+            'Breadwinner' => trim($row[11]),
+            'Housing_condition' => trim($row[12]),
+            'Notes' => trim($row[13]),
         ]);
     }
 
     public function startRow(): int
     {
-        return 1;
+        return 2; // تعديل الرقم ليبدأ من الصف الثاني
     }
 
     public function uniqueBy(): string
     {
-        return 'national_id';
+        return 'CI_ID_NUM';
     }
 }

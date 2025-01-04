@@ -40,7 +40,7 @@ class ExcelController extends Controller
     // دالة لعرض بيانات المستفيدين
     public function viewData()
     {
-        $data = Data::all();
+        $data = Data::paginate(100); // عدد العناصر في كل صفحة 100
         return view('excel.view', compact('data'));
     }
 

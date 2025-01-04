@@ -17,7 +17,7 @@
             margin: 0;
             padding: 0;
             color: #333;
-            background: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+            background: linear-gradient(rgba(255, 255, 255, 0.9), rgb(238, 178, 129)),
                         url('background/image.jpg') center center no-repeat;
             background-size: contain; /* تصغير الصورة لتتناسب مع حجم الصفحة */
             height: 120vh;
@@ -59,8 +59,8 @@
         .file-upload-label {
             display: block;
             padding: 10px 10px;
-            background-color: #FFD600; /* اللون الأصفر */
-            color: #333;
+            background-color: #FF6F00; /* اللون البرتقالي */
+            color: #fff;
             font-size: 20px; /* تكبير حجم النص */
             font-weight: bold;
             border-radius: 10px;
@@ -69,7 +69,7 @@
         }
 
         .file-upload-label:hover {
-            background-color: #FFC107;
+            background-color: #ffa058;
         }
 
         input[type="file"] {

@@ -34,7 +34,7 @@ class ExcelController extends Controller
         ProcessExcelImport::dispatch($path,Str::uuid());
 
         // إعادة توجيه المستخدم مع رسالة نجاح
-        return redirect()->route('excel.view')->with('success', 'تمت معالجة البيانات بنجاح! المعالجة تتم في الخلفية.');
+        return redirect()->route('excel.view')->with('success', 'تمت معالجة البيانات بنجاح!.');
     }
 
     // دالة لعرض بيانات المستفيدين

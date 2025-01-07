@@ -9,7 +9,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithStartRow;
 use Maatwebsite\Excel\Concerns\WithUpserts;
 
-class TempsImport implements ToModel, withStartRow, WithUpserts
+class TempsImport implements ToModel, WithStartRow, WithUpserts
 {
     public string $uuid;
 
@@ -29,6 +29,7 @@ class TempsImport implements ToModel, withStartRow, WithUpserts
             Log::warning("Skipping  \"" . ($row[1]) . "\" due to missing CI_ID_NUM");
             return null;
         }
+
 
         return new Temp([
             'xlxs_uuid' => $this->uuid,

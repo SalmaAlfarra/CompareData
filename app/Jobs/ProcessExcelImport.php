@@ -55,12 +55,18 @@ class ProcessExcelImport implements ShouldQueue
                         'CI_FATHER_ARB' => $person->CI_FATHER_ARB,
                         'CI_GRAND_FATHER_ARB' => $person->CI_GRAND_FATHER_ARB,
                         'CI_FAMILY_ARB' => $person->CI_FAMILY_ARB,
-                        'phone_number' => $row->phone_number,
-                        'family_count' => $row->family_count,
-                        'wife_id' => $person->relatives->isNotEmpty() ? $person->relatives->first()->CI_ID_NUM : null,
-                        'wife_name' => $person->relatives->isNotEmpty() ? $person->relatives->first()->full_name : null,
-                        'male_members' => null,
-                        'female_members' => null,
+                        'Phone_number' => $row->Phone_number,
+                        'Family_count' => $row->Family_count,
+                        'Wife_id' => $person->relatives->isNotEmpty() ? $person->relatives->first()->CI_ID_NUM : null,
+                        'Wife_name' => $person->relatives->isNotEmpty() ? $person->relatives->first()->full_name : null,
+                        'Male_members' => $row->Male_members,
+                        'Female_members' => $row->Female_members,
+                        'Individuals_less_than_3_years' => $row->Individuals_less_than_3_years,
+                        'Individuals_with_chronic_diseases' => $row->Individuals_with_chronic_diseases,
+                        'Individuals_with_disabilities' => $row->Individuals_with_disabilities,
+                        'Breadwinner' => $row->Breadwinner,
+                        'Housing_condition' => $row->Housing_condition,
+                        'Notes' => $row->Notes,
                     ]);
                 } catch (\Exception $e) {
                     Log::error("Error processing person: " . $e->getMessage());
@@ -76,12 +82,18 @@ class ProcessExcelImport implements ShouldQueue
                 'CI_FATHER_ARB',
                 'CI_GRAND_FATHER_ARB',
                 'CI_FAMILY_ARB',
-                'phone_number',
-                'family_count',
-                'wife_id',
-                'wife_name',
-                'male_members',
-                'female_members'
+                'Phone_number',
+                'Family_count',
+                'Wife_id',
+                'Wife_name',
+                'Male_members',
+                'Female_members',
+                'Individuals_less_than_3_years',
+                'Individuals_with_chronic_diseases',
+                'Individuals_with_disabilities',
+                'Breadwinner',
+                'Housing_condition',
+                'Notes'
             ]);
             Log::info("Processed " . count($processedRecords) . " records.");
         }

@@ -8,9 +8,10 @@
     <!-- Google Fonts & Font Awesome -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
     <style>
-        /* إعدادات عامة للخطوط والخلفية */
+       /* إعدادات عامة للخطوط والخلفية */
         body {
             font-family: 'Cairo', sans-serif;
             direction: rtl;
@@ -18,81 +19,117 @@
             margin: 0;
             padding: 0;
             color: #333;
-            background: linear-gradient(rgba(255, 255, 255, 0.9), rgb(238, 178, 129)),
-                        url('background/image.jpg') center center no-repeat;
-            background-size: contain;
-            height: 120vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: linear-gradient(
+                rgba(255, 255, 255, 0.9),
+                rgba(238, 178, 129, 0.8)
+            ),
+            url('background/image.jpg') center center / cover no-repeat;
+            background-size: 90%; /* تصغير الصورة لتتناسب مع حجم الصفحة */
+            background-position: center;
+            height: 100%;
+            min-height: 100vh;
             overflow-x: hidden;
+
+            display: flex;
+            justify-content: center;
+            align-items: center; /* لتوسيط الكونتينر عموديًا */
         }
 
-        /* تنسيق الحاوية الرئيسية */
+        /* إعدادات الحاوية الرئيسية */
         .container {
             background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 20px;
+            padding: 15px;
+            border-radius: 15px;
             width: 90%;
             max-width: 1200px;
             box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
-            overflow-x: auto; /* السماح بالتمرير الأفقي داخل الحاوية */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            max-height: 90vh; /* تصغير الحاوية لتناسب الصفحة */
+            overflow: hidden;
         }
 
-        /* العنوان الرئيسي */
+        /* تنسيق الحاوية الخاصة باللوجو والعنوان */
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        /* تنسيق الشعار */
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        /* تنسيق العنوان الرئيسي */
         h1 {
-            color: #FF6F00; /* اللون البرتقالي */
-            font-size: 25px; /* تكبير حجم النص */
-            margin-top: 10px;
-            margin-bottom: 30px;
+            color: #FF6F00;
+            font-size: 20px;
+            text-align: center;
+            margin: 5px 0;
+             font-weight: bold;
         }
 
         /* تنسيق الجدول */
+        .table-container {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            margin-top: 15px;
+            display: block;
+            max-height: 400px; /* تصغير ارتفاع الجدول */
+            overflow-y: auto; /* تمكين التمرير الرأسي داخل الحاوية فقط */
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
-            background-color: white;
-            table-layout: auto; /* السماح للأعمدة بالتوسع بناءً على المحتوى */
+            table-layout: auto;
+            border: 1px solid #ddd;
         }
 
-        /* تنسيق عناوين الأعمدة */
-        table th {
-            background-color: #FF6F00; /* اللون البرتقالي */
-            color: white;
-            padding: 15px;
-            font-size: 12px;
-            font-weight: bold;
-            text-overflow: ellipsis;
-            white-space: nowrap; /* منع النص من الانتقال إلى سطر جديد */
-            overflow: hidden;
-            text-align: center;
-            border: 1px solid #ddd; /* إضافة حدود للخلايا */
-        }
-
-        /* تنسيق الخلايا مع الاحتواء التلقائي */
-        table td {
-            padding: 15px;
+        table th, table td {
+            padding: 12px;
             border: 1px solid #ddd;
             text-align: center;
-            background-color: #f9f9f9;
-            font-size: 11px;
-            /* white-space: normal;
-            word-wrap: break-word; */
-            size: auto;
+            white-space: nowrap;
             overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: bold; /* جعل النص غامق في الجدول */
+        }
+
+        table th {
+            background-color: #FF6F00;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        table td {
+            background-color: #f9f9f9;
+            font-size: 10px;
         }
 
         table td:hover {
-            background-color: #ffe1ca; /* خلفية عند التمرير */
+            background-color: #ffe1ca;
         }
 
-        /* الأزرار */
+        /* تنسيق الأزرار */
         .back-btn, .download-btn {
             display: inline-block;
-            margin-top: 20px;
-            padding: 12px 30px;
-            font-size: 12px;
+            margin-top: 10px;
+            padding: 10px 25px;
+            font-size: 10px; /* تصغير الخط في الأزرار */
+            font-weight: bold; /* جعل الخط غامق */
             color: white;
             background-color: #FF6F00;
             text-decoration: none;
@@ -104,49 +141,91 @@
             background-color: #E65100;
         }
 
+        /* تنسيق الأزرار لتكون جنب بعض */
+        .buttons-container {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
         /* ميديا كويري للأجهزة الصغيرة */
         @media (max-width: 768px) {
             h1 {
-                font-size: 20px;
+                font-size: 18px;
             }
 
             table th, table td {
-                font-size: 14px; /* تقليص حجم الخط في الأعمدة */
-                padding: 10px;
+                font-size: 13px;
+                padding: 8px;
             }
 
             .container {
-                padding: 20px; /* تقليص الحشو على الأجهزة الصغيرة */
+                padding: 10px;
             }
 
             .back-btn, .download-btn {
-                font-size: 16px;
-                padding: 10px 25px;
+                font-size: 12px;
+                padding: 8px 20px;
             }
         }
 
         @media (max-width: 480px) {
             table th, table td {
-                font-size: 12px; /* تقليص حجم الخط في الأعمدة على الأجهزة الأصغر */
+                font-size: 11px;
             }
 
             h1 {
-                font-size: 18px;
+                font-size: 16px;
             }
 
             .container {
-                padding: 10px; /* تقليص الحشو على الأجهزة الصغيرة جداً */
+                padding: 5px;
             }
 
             .back-btn, .download-btn {
-                font-size: 14px;
-                padding: 8px 20px;
+                font-size: 12px;
+                padding: 6px 15px;
             }
         }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .pagination a,
+        .pagination span {
+            margin: 0 5px;
+            padding: 6px 12px; /* تصغير الأزرار */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+            font-size: 10px; /* تصغير الخط داخل أزرار التنقل */
+            font-weight: bold;
+        }
+
+        .pagination a:hover {
+            background-color: #FF6F00;
+            color: white;
+        }
+
+        .pagination .active span {
+            background-color: #FF6F00;
+            color: white;
+            border-color: #FF6F00;
+        }
+
     </style>
 </head>
 <body>
     <div class="container">
+
+        <img src="background/image.jpg" alt="جمعية الفجر الشبابي" class="logo">
         <h1>بيانات المستفيدين</h1>
 
         @if (session('success'))
@@ -155,19 +234,18 @@
             <div class="alert error">{{ session('error') }}</div>
         @endif
 
-        <a href="{{ route('excel.upload') }}" class="back-btn"><i class="fas fa-arrow-left"></i> العودة لرفع الملفات</a>
-        <a href="{{ route('excel.download') }}" class="download-btn"><i class="fas fa-download"></i> تحميل البيانات</a>
+        <div class="buttons-container">
+            <a href="{{ route('excel.upload') }}" class="back-btn"><i class="fas fa-arrow-left"></i> العودة لرفع الملفات</a>
+            <a href="{{ route('excel.download') }}" class="download-btn"><i class="fas fa-download"></i> تحميل البيانات</a>
+        </div>
 
-        <div style="overflow-x: auto;"> <!-- إضافة عنصر يسمح بالتمرير الأفقي داخل الجدول -->
+        <div class="table-container">
             <table>
                 <thead>
                     <tr>
                         <th>الرقم</th>
                         <th>رقم الهوية</th>
-                        <th>الاسم الأول</th>
-                        <th>اسم الأب</th>
-                        <th>اسم الجد</th>
-                        <th>اسم العائلة</th>
+                        <th>الاسم</th> <!-- دمج الأعمدة في عمود واحد -->
                         <th>رقم الجوال</th>
                         <th>عدد الأفراد</th>
                         <th>رقم هوية الزوجة</th>
@@ -183,15 +261,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @php $index = 1; @endphp
-                    @forelse ($data as $row)
+                    @php $index = ($data->currentPage() - 1) * $data->perPage() + 1; @endphp
+                    @foreach ($data as $row)
                         <tr>
-                            <td>{{ $index++ }}</td>  <!-- الرقم يزداد تلقائيًا -->
+                            <td>{{ $index++ }}</td>
                             <td>{{ $row->CI_ID_NUM }}</td>
-                            <td>{{ $row->CI_FIRST_ARB }}</td>
-                            <td>{{ $row->CI_FATHER_ARB }}</td>
-                            <td>{{ $row->CI_GRAND_FATHER_ARB }}</td>
-                            <td>{{ $row->CI_FAMILY_ARB }}</td>
+                            <!-- دمج الأعمدة الأربعة في عمود واحد باسم 'الاسم' -->
+                            <td>{{ $row->CI_FIRST_ARB }} {{ $row->CI_FATHER_ARB }} {{ $row->CI_GRAND_FATHER_ARB }} {{ $row->CI_FAMILY_ARB }}</td>
                             <td>{{ $row->Phone_number }}</td>
                             <td>{{ $row->Family_count }}</td>
                             <td>{{ $row->Wife_id }}</td>
@@ -205,17 +281,12 @@
                             <td>{{ $row->Housing_condition }}</td>
                             <td>{{ $row->Notes }}</td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="18">لا توجد بيانات متاحة.</td> <!-- تعديل عدد الأعمدة لتشمل الرقم -->
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
-
             <!-- شريط التنقل -->
-            <div class="pagination" style="text-align: center;">
-                {{ $data->links() }}
+            <div class="pagination">
+                {{ $data->links('vendor.pagination.bootstrap-4-ar') }}
             </div>
         </div>
     </div>

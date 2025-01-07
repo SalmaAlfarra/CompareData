@@ -19,8 +19,11 @@
             color: #333;
             background: linear-gradient(rgba(255, 255, 255, 0.9), rgb(238, 178, 129)),
                         url('background/image.jpg') center center no-repeat;
-            background-size: contain; /* تصغير الصورة لتتناسب مع حجم الصفحة */
-            height: 120vh;
+            background-size: 60%; /* تصغير الصورة لتتناسب مع حجم الصفحة */
+            background-position: center;
+            height: 100vh; /* تعيين الارتفاع الكامل للنافذة */
+            width: 100vw; /* تعيين العرض الكامل للنافذة */
+            overflow: hidden; /* منع التمرير */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -97,7 +100,8 @@
             display: inline-block;
             margin-top: 20px;
             padding: 12px 30px;
-            font-size: 18px;
+            font-size: 20px;
+            font-weight: bold;
             color: #fff;
             background-color: #FF6F00;
             text-decoration: none;
@@ -113,7 +117,7 @@
 <body>
     <div class="container">
         <!-- الشعار -->
-        <img src="background/image.jpg" alt="شعار جمعية الفجر الشبابي" class="logo">
+        <img src="background/image.jpg" alt="جمعية الفجر الشبابي" class="logo">
 
         <!-- العنوان الرئيسي -->
         <h1>جمعية الفجر الشبابي</h1>
@@ -121,12 +125,20 @@
         <form action="{{ route('excel.import') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="file-upload-wrapper">
-                <label for="file-upload" class="file-upload-label">اختر ملف الإكسل</label>
-                <input id="file-upload" type="file" name="file" accept=".xlsx, .xls" required>
+                <label for="file-upload" class="file-upload-label" id="file-label">اختر ملف الإكسل</label>
+                <input id="file-upload" type="file" name="file" accept=".xlsx, .xls" required onchange="updateFileName()">
             </div>
             <button type="submit">رفع الملف</button>
         </form>
         <a href="{{ route('excel.view') }}" class="back-btn">عرض البيانات</a>
     </div>
+
+    <script>
+        function updateFileName() {
+            var fileInput = document.getElementById('file-upload');
+            var fileName = fileInput.files[0] ? fileInput.files[0].name : 'اختر ملف الإكسل';
+            document.getElementById('file-label').textContent = fileName;
+        }
+    </script>
 </body>
 </html>

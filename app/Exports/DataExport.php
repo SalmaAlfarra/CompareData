@@ -18,13 +18,22 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         // Fetch data and add a sequential number column
         $data = Data::all([
             'CI_ID_NUM',
-            'full_name',
-            'phone_number',
-            'family_count',
-            'wife_id',
-            'wife_name',
-            'male_members',
-            'female_members'
+            'CI_FIRST_ARB',
+            'CI_FATHER_ARB',
+            'CI_GRAND_FATHER_ARB',
+            'CI_FAMILY_ARB',
+            'Phone_number',
+            'Family_count',
+            'Wife_id',
+            'Wife_name',
+            'Male_members',
+            'Female_members',
+            'Individuals_less_than_3_years',
+            'Individuals_with_chronic_diseases',
+            'Individuals_with_disabilities',
+            'Breadwinner',
+            'Housing_condition',
+            'Notes'
         ]);
 
         $result = collect();
@@ -38,12 +47,18 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
                 'CI_FATHER_ARB' => $row->CI_FATHER_ARB,
                 'CI_GRAND_FATHER_ARB' => $row->CI_GRAND_FATHER_ARB,
                 'CI_FAMILY_ARB' => $row->CI_FAMILY_ARB,
-                'phone_number' => $row->phone_number,
-                'family_count' => $row->family_count,
-                'wife_id' => $row->wife_id,
-                'wife_name' => $row->wife_name,
-                'male_members' => $row->male_members,
-                'female_members' => $row->female_members,
+                'Phone_number' => $row->Phone_number,
+                'Family_count' => $row->Family_count,
+                'Wife_id' => $row->Wife_id,
+                'Wife_name' => $row->Wife_name,
+                'Male_members' => $row->Male_members,
+                'Female_members' => $row->Female_members,
+                'Individuals_less_than_3_years' => $row->Individuals_less_than_3_years,
+                'Individuals_with_chronic_diseases' => $row->Individuals_with_chronic_diseases,
+                'Individuals_with_disabilities' => $row->Individuals_with_disabilities,
+                'Breadwinner' => $row->Breadwinner,
+                'Housing_condition' => $row->Housing_condition,
+                'Notes' => $row->Notes
             ]);
         }
 
@@ -70,6 +85,12 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
             'اسم الزوجة',
             'عدد الأفراد الذكور',
             'عدد الأفراد الإناث',
+            'عدد الأفراد أقل من 3 سنوات',
+            'عدد الأفراد ذوي الأمراض المزمنة',
+            'عدد الأفراد ذوي الإعاقة',
+            'معيل الأسرة',
+            'حالة المسكن',
+            'الملاحظات'
         ];
     }
 
@@ -85,7 +106,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         $sheet->setRightToLeft(true);
 
         // Apply styles to the header row
-        $sheet->getStyle('A1:I1')->applyFromArray([
+        $sheet->getStyle('A1:R1')->applyFromArray([
             'font' => [
                 'bold' => true,
                 'size' => 14, // Increase header font size
@@ -103,15 +124,15 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         ]);
 
         // Apply styles to all rows (content alignment)
-        $sheet->getStyle('A2:I' . $sheet->getHighestRow())->applyFromArray([
+        $sheet->getStyle('A2:R' . $sheet->getHighestRow())->applyFromArray([
             'alignment' => [
-                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
             ],
         ]);
 
         // Set borders for all cells
-        $sheet->getStyle('A1:I' . $sheet->getHighestRow())->applyFromArray([
+        $sheet->getStyle('A1:R' . $sheet->getHighestRow())->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -120,7 +141,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         ]);
 
         // Auto-size columns to fit content (AutoSize)
-        foreach (range('A', 'I') as $column) {
+        foreach (range('A', 'R') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true); // Auto-size each column
         }
 

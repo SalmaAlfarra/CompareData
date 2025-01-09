@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('data', function (Blueprint $table) {
-            $table->integer('CI_ID_NUM')->primary();
-            $table->string('CI_FIRST_ARB', 255)->nullable();
-            $table->string('CI_FATHER_ARB', 255)->nullable();
-            $table->string('CI_GRAND_FATHER_ARB', 255)->nullable();
-            $table->string('CI_FAMILY_ARB', 255)->nullable();
-            $table->string('Phone_number', 20)->nullable();
+        Schema::create('missingData', function (Blueprint $table) {
+            $table->id();;
+            $table->string('CI_ID_NUM')->index()->unique();
+            $table->string('Full_name');
+            $table->string('Phone_number')->nullable();
             $table->integer('Family_count')->nullable();
-            $table->integer('Wife_id')->nullable();
+            $table->string('Wife_id')->nullable();
             $table->string('Wife_name', 255)->nullable();
             $table->integer('Male_members')->nullable();
             $table->integer('Female_members')->nullable();
@@ -29,6 +27,8 @@ return new class extends Migration
             $table->string('Breadwinner', 255)->nullable();
             $table->string('Housing_condition', 255)->nullable();
             $table->string('Notes', 255)->nullable();
+            $table->string('xlxs_uuid')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -37,6 +37,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('data');
+        Schema::dropIfExists('missingData');
     }
 };

@@ -2,111 +2,190 @@
 
 namespace App\Jobs;
 
+use App\Imports\TempsImport;
 use App\Models\Data;
+use App\Models\MissingData;
 use App\Models\Person;
-use App\Models\Relation;
+use App\Models\Temp;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Exports\DataExport;  // تأكد من أنك قد أنشأت هذا الـExport
+use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class ProcessExcelImport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $filePath;
+    protected $uuid;
 
-    // تمرير مسار الملف إلى الوظيفة
-    public function __construct($filePath)
+    public function __construct($filePath, $uuid)
     {
         $this->filePath = $filePath;
+        $this->uuid = $uuid;
     }
 
-    // المعالجة الفعلية للملف
     public function handle()
     {
-        $batchSize = 1000; // حجم الدفعة (يمكن تعديله حسب الحاجة)
+        set_time_limit(300); // 5 minutes
+        $batchSize = 1000; // Batch size for processing
+        $processedRecords = collect(); // Collection to store processed data
+        $missingDataRecords = collect(); // Collection to store missing data
 
-        // قراءة البيانات من ملف الإكسل
-        $data = Excel::toArray([], storage_path('app/' . $this->filePath));
+        // حذف جميع البيانات من جدول temps و data
+        Temp::truncate();
+        Data::truncate();
+        MissingData::truncate();
+        Log::info("All data from 'temps' and 'data' tables has been deleted.");
 
-        // تقسيم المعالجة إلى دفعات من 1000 صف
-        foreach (array_chunk($data[0], $batchSize) as $chunkIndex => $chunk) {
-            foreach ($chunk as $rowIndex => $row) {
+        // Import the temporary data from the Excel file
+        Excel::import(new TempsImport($this->uuid), storage_path('app/' . $this->filePath));
+
+        // Process the Temp data in chunks
+        Temp::where('xlxs_uuid', $this->uuid)->chunk($batchSize, function ($rows) use (&$processedRecords, &$missingDataRecords) {
+            // Get CI_ID_NUMs from Temp rows
+            $ciIdNums = $rows->pluck('CI_ID_NUM')->toArray();
+
+            // Fetch persons matching the CI_ID_NUMs from Temp
+            $persons = Person::with(['relatives' => function ($query) {
+                $query->where('CF_RELATIVE_CD', 4); // Filter for wives
+            }])->whereIn('CI_ID_NUM', $ciIdNums)->get();
+
+            /** @var Temp $row */
+            foreach ($rows as $row) {
+                // Skip if CI_ID_NUM is not found in Person table
+                $person = $persons->firstWhere('CI_ID_NUM', $row->CI_ID_NUM);
+                if (!$person) {
+                    // Add missing data to the collection
+                    $missingDataRecords->push([
+                        'CI_ID_NUM' => $row->CI_ID_NUM,
+                        'Full_name' => $row->Full_name,
+                        'Phone_number' => $row->Phone_number,
+                        'Family_count' => $row->Family_count,
+                        'Wife_id' => $row->Wife_id,
+                        'Wife_name' => $row->Wife_name,
+                        'Male_members' => $row->Male_members,
+                        'Female_members' => $row->Female_members,
+                        'Individuals_less_than_3_years' => $row->Individuals_less_than_3_years,
+                        'Individuals_with_chronic_diseases' => $row->Individuals_with_chronic_diseases,
+                        'Individuals_with_disabilities' => $row->Individuals_with_disabilities,
+                        'Breadwinner' => $row->Breadwinner,
+                        'Housing_condition' => $row->Housing_condition,
+                        'Notes' => $row->Notes,
+                        'xlxs_uuid' => $row->xlxs_uuid,
+                    ]);
+                    continue;
+                }
+
                 try {
-                    // استخلاص البيانات من الأعمدة
-                    $CI_ID_NUM = trim($row[0]);
-                    $full_name = $row[1];
-                    $phone_number = $row[2];
-                    $total_members = $row[3];
-                    $male_members = $row[4];
-                    $female_members = $row[5];
-                    $wife_id = $row[6] ?? null;
-                    $wife_name = $row[7] ?? null;
+                    $wifeId = null;
+                    $wifeName = null;
 
-                    if (empty($CI_ID_NUM)) {
-                        Log::warning("Skipping Row #" . ($rowIndex + 1) . " due to missing CI_ID_NUM");
-                        continue;
-                    }
-
-                    // البحث عن الشخص في جدول الأشخاص
-                    $person = Person::where('CI_ID_NUM', $CI_ID_NUM)->first();
-
-                    if (!$person) {
-                        Log::warning("Person not found for CI_ID_NUM: $CI_ID_NUM");
-                        continue;
-                    }
-
-                    // تحديث الاسم الرباعي
-                    $full_name = $person->CI_FIRST_ARB . ' ' . $person->CI_FATHER_ARB . ' ' . $person->CI_GRAND_FATHER_ARB . ' ' . $person->CI_FAMILY_ARB;
-
-                    // إذا كان الشخص متزوجًا
-                    if ($person->CI_PERSONAL_CD === 'متزوج') {
-                        $relation = Relation::where('CF_ID_NUM', $CI_ID_NUM)->where('CF_RELATIVE_CD', 4)->first();
-
-                        if ($relation) {
-                            $wife_id = $relation->CF_ID_RELATIVE;
-                            $wife = Person::where('CI_ID_NUM', $wife_id)->first();
-                            if ($wife) {
-                                $wife_name = $wife->CI_FIRST_ARB . ' ' . $wife->CI_FATHER_ARB . ' ' . $wife->CI_GRAND_FATHER_ARB . ' ' . $wife->CI_FAMILY_ARB;
-                            }
+                    if ($person->relatives->isNotEmpty()) {
+                        // إذا تم العثور على الزوجة في جدول relatives
+                        $wifeId = $person->relatives->first()->CI_ID_NUM;
+                        $wifeName = $person->relatives->first()->full_name;
+                    } elseif (!empty($row->Wife_id)) {
+                        // إذا كان هناك قيمة في عمود Wife_id، ابحث عنها في جدول Person
+                        $wifePerson = Person::where('CI_ID_NUM', $row->Wife_id)->first();
+                        if ($wifePerson) {
+                            $wifeId = $row->Wife_id;
+                            $wifeName = $wifePerson->CI_FIRST_ARB . ' ' . $wifePerson->CI_FATHER_ARB . ' ' . $wifePerson->CI_FAMILY_ARB;
+                        } else {
+                            // إذا لم يتم العثور عليها في جدول Person، خذ البيانات من الملف مباشرة
+                            $wifeId = $row->Wife_id;
+                            $wifeName = $row->Wife_name;
                         }
+                    } else {
+                        // إذا لم يتم العثور على الزوجة في أي مكان
+                        $wifeId = $row->Wife_id;
+                        $wifeName = $row->Wife_name;
                     }
 
-                    // تحديث أو إنشاء سجل جديد في جدول الداتا
-                    Data::updateOrCreate(
-                        ['CI_ID_NUM' => $CI_ID_NUM],
-                        [
-                            'full_name' => $full_name,
-                            'phone_number' => $phone_number,
-                            'family_count' => $total_members,
-                            'male_members' => $male_members,
-                            'female_members' => $female_members,
-                            'wife_id' => $wife_id,
-                            'wife_name' => $wife_name,
-                        ]
-                    );
+                    $processedRecords->push([
+                        'CI_ID_NUM' => $row->CI_ID_NUM,
+                        'CI_FIRST_ARB' => $person->CI_FIRST_ARB,
+                        'CI_FATHER_ARB' => $person->CI_FATHER_ARB,
+                        'CI_GRAND_FATHER_ARB' => $person->CI_GRAND_FATHER_ARB,
+                        'CI_FAMILY_ARB' => $person->CI_FAMILY_ARB,
+                        'Phone_number' => $row->Phone_number,
+                        'Family_count' => $row->Family_count,
+                        'Wife_id' => $wifeId,
+                        'Wife_name' => $wifeName,
+                        'Male_members' => $row->Male_members,
+                        'Female_members' => $row->Female_members,
+                        'Individuals_less_than_3_years' => $row->Individuals_less_than_3_years,
+                        'Individuals_with_chronic_diseases' => $row->Individuals_with_chronic_diseases,
+                        'Individuals_with_disabilities' => $row->Individuals_with_disabilities,
+                        'Breadwinner' => $row->Breadwinner,
+                        'Housing_condition' => $row->Housing_condition,
+                        'Notes' => $row->Notes,
+                    ]);
                 } catch (\Exception $e) {
-                    Log::error("Error processing Chunk #" . ($chunkIndex + 1) . ", Row #" . ($rowIndex + 1) . ": " . $e->getMessage());
+                    Log::error("Error processing row: " . $e->getMessage());
                 }
             }
+        });
 
-            // إضافة تأخير بين الدفعات لتخفيف الضغط على الخادم
-            sleep(1);
+        // Insert missing data into missingData table
+        if ($missingDataRecords->isNotEmpty()) {
+            DB::table('missingData')->insert($missingDataRecords->toArray());
+            Log::info("Inserted " . count($missingDataRecords) . " records into 'missingData' table.");
         }
 
-        // تحميل ملف Excel بعد الانتهاء من المعالجة
+        // Insert processed data into Data table
+        if ($processedRecords->isNotEmpty()) {
+            Data::upsert($processedRecords->toArray(), ['CI_ID_NUM'], [
+                'CI_ID_NUM',
+                'CI_FIRST_ARB',
+                'CI_FATHER_ARB',
+                'CI_GRAND_FATHER_ARB',
+                'CI_FAMILY_ARB',
+                'Phone_number',
+                'Family_count',
+                'Wife_id',
+                'Wife_name',
+                'Male_members',
+                'Female_members',
+                'Individuals_less_than_3_years',
+                'Individuals_with_chronic_diseases',
+                'Individuals_with_disabilities',
+                'Breadwinner',
+                'Housing_condition',
+                'Notes',
+            ]);
+            Log::info("Processed " . count($processedRecords) . " records.");
+        }
+
+        // Export directly to Excel
         $fileName = 'processed_data_' . time() . '.xlsx';
-        Excel::store(new DataExport, $fileName, 'public');
+        Excel::store(new class($processedRecords) implements FromCollection, WithHeadings
+        {
+            protected $records;
 
-        // إرسال رسالة بريدية أو تنبيه للمستخدم
-        Log::info("Import process completed. Data processed successfully.");
+            public function __construct($records)
+            {
+                $this->records = $records;
+            }
 
-        // حذف البيانات من جدول الداتا
-        Data::truncate();  // هذا سيحذف جميع البيانات في جدول الداتا
+            public function collection()
+            {
+                return $this->records;
+            }
+
+            public function headings(): array
+            {
+                return array_keys($this->records->first());
+            }
+        }, $fileName, 'public');
+
+        Log::info("Import process completed. Data exported to: " . $fileName);
     }
+
 }

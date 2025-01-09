@@ -14,22 +14,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/upload', [ExcelController::class, 'index'])->name('excel.upload'); // عرض صفحة رفع ملف Excel
+Route::get('/upload', [ExcelController::class, 'index'])->name('excel.upload');
 
-Route::post('/import', [ExcelController::class, 'import'])->name('excel.import'); // استيراد البيانات من ملف Excel
+Route::post('/import', [ExcelController::class, 'import'])->name('excel.import');
 
-Route::get('/view', [ExcelController::class, 'viewData'])->name('excel.view'); // عرض بيانات المستفيدين
+Route::get('/viewData', [ExcelController::class, 'viewData'])->name('excel.data');
 
-Route::get('download-excel', [ExcelController::class, 'downloadExcel'])->name('excel.download'); // تنزيل بيانات المستفيدين
+Route::get('/viewMissigData', [ExcelController::class, 'viewMissigData'])->name('excel.missigData');
 
-// Route::get('/', function () {
-//     return view('excel.view');
-// });
+Route::get('/downloadData', [ExcelController::class, 'downloadDataExcel'])->name('excel.downloadData');
 
-// Route::get('/upload', function () {
-//     return view('excel.import');
-// })->name('excel.form');
-
-// Route::post('/import', [ExcelController::class, 'import'])->name('excel.import');
-
-// Route::get('/data', [ExcelController::class, 'viewData'])->name('data.view');
+Route::get('/downloadMissingData', [ExcelController::class, 'downloadMissingDataExcel'])->name('excel.downloadMissingData');

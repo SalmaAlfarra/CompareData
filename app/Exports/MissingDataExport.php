@@ -2,13 +2,13 @@
 
 namespace App\Exports;
 
-use App\Models\Data;
+use App\Models\MissingData;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class DataExport implements FromCollection, WithHeadings, WithStyles
+class MissingDataExport implements FromCollection, WithHeadings, WithStyles
 {
     /**
      * @return \Illuminate\Support\Collection
@@ -16,12 +16,9 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
     public function collection()
     {
         // Fetch data and add a sequential number column
-        $data = Data::all([
+        $data = MissingData::all([
             'CI_ID_NUM',
-            'CI_FIRST_ARB',
-            'CI_FATHER_ARB',
-            'CI_GRAND_FATHER_ARB',
-            'CI_FAMILY_ARB',
+            'Full_name',
             'Phone_number',
             'Family_count',
             'Wife_id',
@@ -43,10 +40,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
             $result->push([
                 'number' => $counter++, // Incremental number
                 'CI_ID_NUM' => $row->CI_ID_NUM,
-                'CI_FIRST_ARB' => $row->CI_FIRST_ARB,
-                'CI_FATHER_ARB' => $row->CI_FATHER_ARB,
-                'CI_GRAND_FATHER_ARB' => $row->CI_GRAND_FATHER_ARB,
-                'CI_FAMILY_ARB' => $row->CI_FAMILY_ARB,
+                'Full_name' => $row->Full_name,
                 'Phone_number' => $row->Phone_number,
                 'Family_count' => $row->Family_count,
                 'Wife_id' => $row->Wife_id,
@@ -75,10 +69,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         return [
             'الرقم',
             'رقم الهوية',
-            'الاسم الأول',
-            'اسم الأب',
-            'اسم الجد',
-            'اسم العائلة',
+            'الاسم رباعي',
             'رقم الجوال',
             'عدد أفراد الأسرة',
             'رقم هوية الزوجة',

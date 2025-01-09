@@ -42,7 +42,8 @@
         /* العنوان الرئيسي */
         h1 {
             color: #FF6F00; /* اللون البرتقالي */
-            font-size: 20px; /* تكبير حجم النص */
+            font-size: 25px; /* تكبير حجم النص */
+            font-weight: bold;
             margin-top: 10px; /* تقليص المسافة بين الشعار والعنوان */
             margin-bottom: 30px;
         }
@@ -56,7 +57,7 @@
 
         /* تنسيق حقل رفع الملفات */
         .file-upload-wrapper {
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         .file-upload-label {
@@ -64,7 +65,7 @@
             padding: 10px 10px;
             background-color: #FF6F00; /* اللون البرتقالي */
             color: #fff;
-            font-size: 20px; /* تكبير حجم النص */
+            font-size: 15px; /* تكبير حجم النص */
             font-weight: bold;
             border-radius: 10px;
             cursor: pointer;
@@ -86,7 +87,7 @@
             padding: 10px 20px; /* تكبير حجم الزر */
             border: none;
             border-radius: 10px;
-            font-size: 20px; /* تكبير النص */
+            font-size: 15px; /* تكبير النص */
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.3s ease;
@@ -100,7 +101,7 @@
             display: inline-block;
             margin-top: 20px;
             padding: 12px 30px;
-            font-size: 20px;
+            font-size: 15px;
             font-weight: bold;
             color: #fff;
             background-color: #FF6F00;
@@ -128,7 +129,7 @@
                 <label for="file-upload" class="file-upload-label" id="file-label">اختر ملف الإكسل</label>
                 <input id="file-upload" type="file" name="file" accept=".xlsx, .xls" required onchange="updateFileName()">
             </div>
-            <button type="submit">رفع الملف</button>
+            <button type="submit" class="back-btn">رفع الملف</button>
         </form>
         <a href="{{ route('excel.view') }}" class="back-btn">عرض البيانات</a>
     </div>

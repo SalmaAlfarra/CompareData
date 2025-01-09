@@ -40,25 +40,57 @@ class ProcessExcelImport implements ShouldQueue
 
         // Process the Temp data in chunks
         Temp::where('xlxs_uuid', $this->uuid)->chunk($batchSize, function ($rows) use (&$processedRecords) {
+            // Get CI_ID_NUMs from Temp rows
+            $ciIdNums = $rows->pluck('CI_ID_NUM')->toArray();
+
+            // Fetch persons matching the CI_ID_NUMs from Temp
             $persons = Person::with(['relatives' => function ($query) {
                 $query->where('CF_RELATIVE_CD', 4); // Filter for wives
-            }])->whereIn('CI_ID_NUM', $rows->pluck('CI_ID_NUM')->toArray())->get();
+            }])->whereIn('CI_ID_NUM', $ciIdNums)->get();
 
             /** @var Temp $row */
-            foreach ($persons as $person) {
+            foreach ($rows as $row) {
+                // Skip if CI_ID_NUM is not found in Person table
+                $person = $persons->firstWhere('CI_ID_NUM', $row->CI_ID_NUM);
+                if (!$person) {
+                    continue;
+                }
+
                 try {
-                    $row = $rows->firstWhere('CI_ID_NUM', $person->CI_ID_NUM);
+                    $wifeId = null;
+                    $wifeName = null;
+
+                    if ($person->relatives->isNotEmpty()) {
+                        // إذا تم العثور على الزوجة في جدول relatives
+                        $wifeId = $person->relatives->first()->CI_ID_NUM;
+                        $wifeName = $person->relatives->first()->full_name;
+                    } elseif (!empty($row->Wife_id)) {
+                        // إذا كان هناك قيمة في عمود Wife_id، ابحث عنها في جدول Person
+                        $wifePerson = Person::where('CI_ID_NUM', $row->Wife_id)->first();
+                        if ($wifePerson) {
+                            $wifeId = $row->Wife_id;
+                            $wifeName = $wifePerson->CI_FIRST_ARB . ' ' . $wifePerson->CI_FATHER_ARB . ' ' . $wifePerson->CI_FAMILY_ARB;
+                        } else {
+                            // إذا لم يتم العثور عليها في جدول Person، خذ البيانات من الملف مباشرة
+                            $wifeId = $row->Wife_id;
+                            $wifeName = $row->Wife_name;
+                        }
+                    } else {
+                        // إذا لم يتم العثور على الزوجة في أي مكان
+                        $wifeId = $row->Wife_id;
+                        $wifeName = $row->Wife_name;
+                    }
 
                     $processedRecords->push([
-                        'CI_ID_NUM' => $person->CI_ID_NUM,
+                        'CI_ID_NUM' => $row->CI_ID_NUM,
                         'CI_FIRST_ARB' => $person->CI_FIRST_ARB,
                         'CI_FATHER_ARB' => $person->CI_FATHER_ARB,
                         'CI_GRAND_FATHER_ARB' => $person->CI_GRAND_FATHER_ARB,
                         'CI_FAMILY_ARB' => $person->CI_FAMILY_ARB,
                         'Phone_number' => $row->Phone_number,
                         'Family_count' => $row->Family_count,
-                        'Wife_id' => $person->relatives->isNotEmpty() ? $person->relatives->first()->CI_ID_NUM : null,
-                        'Wife_name' => $person->relatives->isNotEmpty() ? $person->relatives->first()->full_name : null,
+                        'Wife_id' => $wifeId,
+                        'Wife_name' => $wifeName,
                         'Male_members' => $row->Male_members,
                         'Female_members' => $row->Female_members,
                         'Individuals_less_than_3_years' => $row->Individuals_less_than_3_years,
@@ -69,11 +101,10 @@ class ProcessExcelImport implements ShouldQueue
                         'Notes' => $row->Notes,
                     ]);
                 } catch (\Exception $e) {
-                    Log::error("Error processing person: " . $e->getMessage());
+                    Log::error("Error processing row: " . $e->getMessage());
                 }
             }
         });
-
 
         if ($processedRecords->isNotEmpty()) {
             Data::upsert($processedRecords->toArray(), ['CI_ID_NUM'], [
@@ -93,15 +124,15 @@ class ProcessExcelImport implements ShouldQueue
                 'Individuals_with_disabilities',
                 'Breadwinner',
                 'Housing_condition',
-                'Notes'
+                'Notes',
             ]);
             Log::info("Processed " . count($processedRecords) . " records.");
         }
 
-
         // Export directly to Excel
         $fileName = 'processed_data_' . time() . '.xlsx';
-        Excel::store(new class($processedRecords) implements FromCollection, WithHeadings {
+        Excel::store(new class($processedRecords) implements FromCollection, WithHeadings
+        {
             protected $records;
 
             public function __construct($records)
@@ -119,7 +150,6 @@ class ProcessExcelImport implements ShouldQueue
                 return array_keys($this->records->first());
             }
         }, $fileName, 'public');
-
 
         Log::info("Import process completed. Data exported to: " . $fileName);
     }

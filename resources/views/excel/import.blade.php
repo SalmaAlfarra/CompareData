@@ -129,7 +129,7 @@
                 <label for="file-upload" class="file-upload-label" id="file-label">اختر ملف الإكسل</label>
                 <input id="file-upload" type="file" name="file" accept=".xlsx, .xls" required onchange="updateFileName()">
             </div>
-            <a type="submit" class="back-btn">رفع الملف</a>
+            <button type="submit" class="back-btn">رفع الملف</button>
         </form>
         <a href="{{ route('excel.view') }}" class="back-btn">عرض البيانات</a>
     </div>

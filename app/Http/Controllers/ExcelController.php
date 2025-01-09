@@ -4,11 +4,13 @@
 namespace App\Http\Controllers;
 
 use App\Exports\DataExport;
+use App\Exports\MissingDataExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Jobs\ProcessExcelImport;
 use App\Models\Data;
+use App\Models\MissingData;
 
 class ExcelController extends Controller
 {
@@ -34,18 +36,30 @@ class ExcelController extends Controller
         ProcessExcelImport::dispatch($path,Str::uuid());
 
         // إعادة توجيه المستخدم مع رسالة نجاح
-        return redirect()->route('excel.view')->with('success', 'تمت معالجة البيانات بنجاح!.');
+        return redirect()->route('excel.data')->with('success', 'تمت معالجة البيانات بنجاح!.');
     }
 
     // دالة لعرض بيانات المستفيدين
     public function viewData()
     {
         $data = Data::paginate(100); // عدد العناصر في كل صفحة 100
-        return view('excel.view', compact('data'));
+        return view('excel.viewData', compact('data'));
     }
 
-    public function downloadExcel()
+    // دالة لعرض بيانات المستفيدين المفقودين
+    public function viewMissigData()
     {
-        return Excel::download(new DataExport, 'data.xlsx');
+        $data = MissingData::paginate(100); // عدد العناصر في كل صفحة 100
+        return view('excel.viewMissingData', compact('data'));
+    }
+
+    public function downloadDataExcel()
+    {
+        return Excel::download(new DataExport, 'Data.xlsx');
+    }
+
+    public function downloadMissingDataExcel()
+    {
+        return Excel::download(new MissingDataExport, 'Missig Data.xlsx');
     }
 }

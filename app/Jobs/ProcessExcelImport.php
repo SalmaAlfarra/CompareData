@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Imports\TempsImport;
 use App\Models\Data;
+use App\Models\MissingData;
 use App\Models\Person;
 use App\Models\Temp;
 use Illuminate\Bus\Queueable;
@@ -11,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -34,17 +36,19 @@ class ProcessExcelImport implements ShouldQueue
         set_time_limit(300); // 5 minutes
         $batchSize = 1000; // Batch size for processing
         $processedRecords = collect(); // Collection to store processed data
+        $missingDataRecords = collect(); // Collection to store missing data
 
         // حذف جميع البيانات من جدول temps و data
         Temp::truncate();
         Data::truncate();
+        MissingData::truncate();
         Log::info("All data from 'temps' and 'data' tables has been deleted.");
 
         // Import the temporary data from the Excel file
         Excel::import(new TempsImport($this->uuid), storage_path('app/' . $this->filePath));
 
         // Process the Temp data in chunks
-        Temp::where('xlxs_uuid', $this->uuid)->chunk($batchSize, function ($rows) use (&$processedRecords) {
+        Temp::where('xlxs_uuid', $this->uuid)->chunk($batchSize, function ($rows) use (&$processedRecords, &$missingDataRecords) {
             // Get CI_ID_NUMs from Temp rows
             $ciIdNums = $rows->pluck('CI_ID_NUM')->toArray();
 
@@ -58,6 +62,24 @@ class ProcessExcelImport implements ShouldQueue
                 // Skip if CI_ID_NUM is not found in Person table
                 $person = $persons->firstWhere('CI_ID_NUM', $row->CI_ID_NUM);
                 if (!$person) {
+                    // Add missing data to the collection
+                    $missingDataRecords->push([
+                        'CI_ID_NUM' => $row->CI_ID_NUM,
+                        'Full_name' => $row->Full_name,
+                        'Phone_number' => $row->Phone_number,
+                        'Family_count' => $row->Family_count,
+                        'Wife_id' => $row->Wife_id,
+                        'Wife_name' => $row->Wife_name,
+                        'Male_members' => $row->Male_members,
+                        'Female_members' => $row->Female_members,
+                        'Individuals_less_than_3_years' => $row->Individuals_less_than_3_years,
+                        'Individuals_with_chronic_diseases' => $row->Individuals_with_chronic_diseases,
+                        'Individuals_with_disabilities' => $row->Individuals_with_disabilities,
+                        'Breadwinner' => $row->Breadwinner,
+                        'Housing_condition' => $row->Housing_condition,
+                        'Notes' => $row->Notes,
+                        'xlxs_uuid' => $row->xlxs_uuid,
+                    ]);
                     continue;
                 }
 
@@ -111,6 +133,13 @@ class ProcessExcelImport implements ShouldQueue
             }
         });
 
+        // Insert missing data into missingData table
+        if ($missingDataRecords->isNotEmpty()) {
+            DB::table('missingData')->insert($missingDataRecords->toArray());
+            Log::info("Inserted " . count($missingDataRecords) . " records into 'missingData' table.");
+        }
+
+        // Insert processed data into Data table
         if ($processedRecords->isNotEmpty()) {
             Data::upsert($processedRecords->toArray(), ['CI_ID_NUM'], [
                 'CI_ID_NUM',
@@ -158,4 +187,5 @@ class ProcessExcelImport implements ShouldQueue
 
         Log::info("Import process completed. Data exported to: " . $fileName);
     }
+
 }

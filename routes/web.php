@@ -18,6 +18,10 @@ Route::get('/upload', [ExcelController::class, 'index'])->name('excel.upload');
 
 Route::post('/import', [ExcelController::class, 'import'])->name('excel.import');
 
-Route::get('/view', [ExcelController::class, 'viewData'])->name('excel.view');
+Route::get('/viewData', [ExcelController::class, 'viewData'])->name('excel.data');
 
-Route::get('/download', [ExcelController::class, 'downloadExcel'])->name('excel.download');
+Route::get('/viewMissigData', [ExcelController::class, 'viewMissigData'])->name('excel.missigData');
+
+Route::get('/downloadData', [ExcelController::class, 'downloadDataExcel'])->name('excel.downloadData');
+
+Route::get('/downloadMissingData', [ExcelController::class, 'downloadMissingDataExcel'])->name('excel.downloadMissingData');

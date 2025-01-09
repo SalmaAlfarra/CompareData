@@ -236,7 +236,8 @@
 
         <div class="buttons-container">
             <a href="{{ route('excel.upload') }}" class="back-btn"><i class="fas fa-arrow-left"></i> العودة لرفع الملفات</a>
-            <a href="{{ route('excel.download') }}" class="download-btn"><i class="fas fa-download"></i> تحميل البيانات</a>
+            <a href="{{ route('excel.downloadMissingData') }}" class="download-btn"><i class="fas fa-download"></i> تحميل البيانات المفقودة</a>
+            <a href="{{ route('excel.data') }}" class="download-btn"><i class="fas fa-eye"></i> عرض البيانات التي تم معالجتها</a>
         </div>
 
         <div class="table-container">
@@ -266,8 +267,7 @@
                         <tr>
                             <td>{{ $index++ }}</td>
                             <td>{{ $row->CI_ID_NUM }}</td>
-                            <!-- دمج الأعمدة الأربعة في عمود واحد باسم 'الاسم' -->
-                            <td>{{ $row->CI_FIRST_ARB }} {{ $row->CI_FATHER_ARB }} {{ $row->CI_GRAND_FATHER_ARB }} {{ $row->CI_FAMILY_ARB }}</td>
+                            <td>{{ $row->Full_name }}</td>
                             <td>{{ $row->Phone_number }}</td>
                             <td>{{ $row->Family_count }}</td>
                             <td>{{ $row->Wife_id }}</td>

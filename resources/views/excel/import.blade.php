@@ -131,7 +131,10 @@
             </div>
             <button type="submit" class="back-btn">رفع الملف</button>
         </form>
-        <a href="{{ route('excel.view') }}" class="back-btn">عرض البيانات</a>
+    <div class="buttons-container">
+        <a href="{{ route('excel.data') }}" class="back-btn"><i class="fas fa-eye"></i> عرض البيانات التي تم معالجتها</a>
+        <a href="{{ route('excel.missigData') }}" class="back-btn"><i class="fas fa-eye"></i> عرض البيانات المفقودة</a>
+        </div>
     </div>
 
     <script>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"> <!-- Ensures the correct display of Arabic characters -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Makes the page responsive -->
-    <title>رفع الملفات - جمعية الفجر الشبابي</title> <!-- Sets the page title -->
+    <title>رفع الملفات - جمعية الفجر الشبابي الفلسطيني</title> <!-- Sets the page title -->
 
     <!-- Importing Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
@@ -117,10 +117,10 @@
 <body>
     <div class="container">
         <!-- Logo of the organization -->
-        <img src="background/image.jpg" alt="جمعية الفجر الشبابي" class="logo">
+        <img src="background/image.jpg" alt="جمعية الفجر الشبابي الفلسطيني" class="logo">
 
         <!-- Main heading of the page -->
-        <h1>جمعية الفجر الشبابي</h1>
+        <h1>جمعية الفجر الشبابي الفلسطيني</h1>
 
         <!-- File upload form -->
         <form action="{{ route('excel.import') }}" method="POST" enctype="multipart/form-data">

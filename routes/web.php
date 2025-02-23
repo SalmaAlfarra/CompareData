@@ -26,6 +26,11 @@ Route::post('/import', [ExcelController::class, 'import'])->name('excel.import')
 // When the user sends a POST request to the /import route, the 'import' method in the ExcelController is called
 // This method handles importing data from the uploaded Excel file
 
+// Route to handle data import from an Excel file
+Route::post('/importCity', [ExcelController::class, 'importCity'])->name('excel.importCity');
+// When the user sends a POST request to the /importCity route, the 'importCity' method in the ExcelController is called
+// This method handles importing data from the uploaded Excel file
+
 // Route to display the imported data
 Route::get('/viewData', [ExcelController::class, 'viewData'])->name('excel.data');
 // When the user visits the /viewData route, they will be directed to the 'viewData' method in the ExcelController

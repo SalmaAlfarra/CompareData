@@ -22,6 +22,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
             'CI_FATHER_ARB',
             'CI_GRAND_FATHER_ARB',
             'CI_FAMILY_ARB',
+            'CITTTTY',
             'Phone_number',
             'Family_count',
             'Representative_name',
@@ -50,6 +51,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
                 'CI_FATHER_ARB'                      => $row->CI_FATHER_ARB,
                 'CI_GRAND_FATHER_ARB'                => $row->CI_GRAND_FATHER_ARB,
                 'CI_FAMILY_ARB'                      => $row->CI_FAMILY_ARB,
+                'CITTTTY'                            => $row->CITTTTY,
                 'Phone_number'                       => $row->Phone_number,
                 'Family_count'                       => $row->Family_count,
                 'Representative_name'                => $row->Representative_name,
@@ -85,6 +87,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
             'اسم الأب',
             'اسم الجد',
             'اسم العائلة',
+            'المدينة الأصلية',
             'رقم الجوال',
             'عدد أفراد الأسرة',
             'اسم المندوب',
@@ -115,7 +118,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         $sheet->setRightToLeft(true);
 
         // Apply styles to the header row
-        $sheet->getStyle('A1:T1')->applyFromArray([
+        $sheet->getStyle('A1:V1')->applyFromArray([
             'font' => [
                 'bold'  => true,
                 'size'  => 14, // Increase header font size
@@ -133,7 +136,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         ]);
 
         // Apply styles to all rows (content alignment)
-        $sheet->getStyle('A2:T' . $sheet->getHighestRow())->applyFromArray([
+        $sheet->getStyle('A2:V' . $sheet->getHighestRow())->applyFromArray([
             'alignment' => [
                 'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
                 'vertical'   => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_RIGHT,
@@ -141,7 +144,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         ]);
 
         // Set borders for all cells
-        $sheet->getStyle('A1:T' . $sheet->getHighestRow())->applyFromArray([
+        $sheet->getStyle('A1:V' . $sheet->getHighestRow())->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
@@ -150,7 +153,7 @@ class DataExport implements FromCollection, WithHeadings, WithStyles
         ]);
 
         // Auto-size columns to fit content (AutoSize)
-        foreach (range('A', 'T') as $column) {
+        foreach (range('A', 'V') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true); // Auto-size each column
         }
 

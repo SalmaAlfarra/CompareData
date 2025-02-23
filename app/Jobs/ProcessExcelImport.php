@@ -2,7 +2,11 @@
 
 namespace App\Jobs;
 
+// ini_set('memory_limit', '512M');
+// ini_set('max_execution_time', '300');
+
 use App\Imports\TempsImport;
+use App\Models\CityData;
 use App\Models\Data;
 use App\Models\MissingData;
 use App\Models\Person;
@@ -43,6 +47,7 @@ class ProcessExcelImport implements ShouldQueue
         // Truncate tables before inserting new data
         Temp::truncate();
         Data::truncate();
+        CityData::truncate();
         MissingData::truncate();
         Log::info("All data from 'temps' and 'data' tables has been deleted.");
 
@@ -117,6 +122,7 @@ class ProcessExcelImport implements ShouldQueue
                         'CI_FATHER_ARB'                      => $person->CI_FATHER_ARB,
                         'CI_GRAND_FATHER_ARB'                => $person->CI_GRAND_FATHER_ARB,
                         'CI_FAMILY_ARB'                      => $person->CI_FAMILY_ARB,
+                        'CITTTTY'                               => $person->CITY,
                         'Phone_number'                       => $row->Phone_number,
                         'Family_count'                       => $row->Family_count,
                         'Representative_name'                => $row->Representative_name,
@@ -154,6 +160,7 @@ class ProcessExcelImport implements ShouldQueue
                 'CI_FATHER_ARB',
                 'CI_GRAND_FATHER_ARB',
                 'CI_FAMILY_ARB',
+                'CITTTTY',
                 'Phone_number',
                 'Family_count',
                 'Representative_name',
@@ -168,8 +175,9 @@ class ProcessExcelImport implements ShouldQueue
                 'Individuals_with_disabilities',
                 'Breadwinner',
                 'Housing_condition',
-                'Notes',
+                'Notes'
             ]);
+
             Log::info("Processed " . count($processedRecords) . " records.");
         }
 

@@ -230,7 +230,7 @@
     <div class="container">
 
         <!-- Logo and Title -->
-        <img src="background/image.jpg" alt="جمعية الفجر الشبابي" class="logo">
+        <img src="background/image.jpg" alt="جمعية الفجر الشبابي الفلسطيني" class="logo">
         <h1>بيانات المستفيدين</h1>
 
         <!-- Success/Error Messages -->

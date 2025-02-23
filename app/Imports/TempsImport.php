@@ -2,6 +2,9 @@
 
 namespace App\Imports;
 
+ini_set('memory_limit', '512M');
+ini_set('max_execution_time', '300');
+
 // Required models and libraries
 use App\Models\Temp;
 use Illuminate\Database\Eloquent\Model;

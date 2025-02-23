@@ -196,7 +196,7 @@
 <body>
     <div class="container">
         <!-- Logo and title section -->
-        <img src="background/image.jpg" alt="جمعية الفجر الشبابي" class="logo">
+        <img src="background/image.jpg" alt="جمعية الفجر الشبابي الفلسطيني" class="logo">
         <h1>بيانات المستفيدين</h1>
 
         <!-- Display success or error messages -->
@@ -230,6 +230,7 @@
                         <th>الرقم</th>
                         <th>رقم الهوية</th>
                         <th>الاسم</th>
+                        <th>المدينة الأصلية</th>
                         <th>رقم الجوال</th>
                         <th>عدد الأفراد</th>
                         <th>اسم المندوب</th>
@@ -255,6 +256,7 @@
                             <td>{{ $index++ }}</td>
                             <td>{{ $row->CI_ID_NUM }}</td>
                             <td>{{ $row->CI_FIRST_ARB }} {{ $row->CI_FATHER_ARB }} {{ $row->CI_GRAND_FATHER_ARB }} {{ $row->CI_FAMILY_ARB }}</td>
+                            <td>{{ $row->CITTTTY }}</td>
                             <td>{{ $row->Phone_number }}</td>
                             <td>{{ $row->Family_count }}</td>
                             <td>{{ $row->Representative_name }}</td>
@@ -292,7 +294,7 @@
             // Iterate over each row
             rows.forEach((row) => {
                 // Select the 9th table cell (which holds the status value) within the current row
-                const statusCell = row.querySelector('td:nth-child(9)');
+                const statusCell = row.querySelector('td:nth-child(10)');
 
                 // Check if the status cell is found
                 if (statusCell) {

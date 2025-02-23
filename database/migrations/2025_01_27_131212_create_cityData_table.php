@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('data', function (Blueprint $table) {
+        Schema::create('cityData', function (Blueprint $table) {
             $table->integer('CI_ID_NUM')->primary();
             $table->string('CI_FIRST_ARB', 255)->nullable();
             $table->string('CI_FATHER_ARB', 255)->nullable();
             $table->string('CI_GRAND_FATHER_ARB', 255)->nullable();
             $table->string('CI_FAMILY_ARB', 255)->nullable();
-            $table->string('CITTTTY', 255)->nullable(); // المحافظة الأصلية
             $table->string('Phone_number', 20)->nullable();
             $table->integer('Family_count')->nullable();
+            $table->string('CITTTTY', 255)->nullable(); // المحافظة الأصلية
             $table->string('Representative_name', 255)->nullable();
             $table->integer('Wife_id')->nullable();
             $table->string('Wife_name', 255)->nullable();
@@ -41,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('data');
+        Schema::dropIfExists('cityData');
     }
 };

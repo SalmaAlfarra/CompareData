@@ -250,7 +250,7 @@
 
         <h1>تسجيل الدخول</h1>
 
-        <form id="loginForm" action="{{ route('user.login') }}" method="POST">
+        <form id="loginForm" method="POST" action="{{ route('admin.login') }}">
             @csrf
             <div class="form-group">
                 <label for="email">البريد الإلكتروني:</label>

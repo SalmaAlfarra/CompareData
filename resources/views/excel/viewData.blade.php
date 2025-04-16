@@ -49,6 +49,7 @@
             align-items: center;
             max-height: 90vh;
             overflow: hidden;
+            position: relative; /* Allows absolute positioning of the logout button */
         }
 
         /* Header section styling */
@@ -190,11 +191,34 @@
         .inactive-row {
             background-color: #f7909a !important; /* Light red */
         }
+
+        /* Logout button styles */
+        .logout-btn {
+            position: absolute; /* Position it absolutely within the container */
+            top: 10px; /* Align it to the top */
+            right: 10px; /* Align it to the left */
+            font-size: 16px; /* Size of the icon */
+            font-weight: bold;
+            color: #FF6F00; /* Orange color for the icon */
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            color: #E65100; /* Darker orange when hovered */
+        }
     </style>
 
 </head>
 <body>
     <div class="container">
+        <!-- Logout button inside the container, positioned top left -->
+        <form action="{{ route('admin.logout') }}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" class="logout-btn" style="border: none; background: transparent; padding: 0;">
+                <i class="fas fa-sign-out-alt"></i> خروج
+            </button>
+        </form>
         <!-- Logo and title section -->
         <img src="background/image.jpg" alt="جمعية الفجر الشبابي الفلسطيني" class="logo">
         <h1>بيانات المستفيدين</h1>

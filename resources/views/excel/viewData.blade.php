@@ -234,7 +234,7 @@
         <div class="buttons-container">
             <a href="{{ route('excel.upload') }}" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
-                العودة لرفع البيانات
+                العودة لرفع الملفات
             </a>
             <a href="{{ route('excel.downloadData') }}" class="download-btn">
                 <i class="fas fa-download"></i>

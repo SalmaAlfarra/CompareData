@@ -265,9 +265,18 @@
 
         <!-- Action Buttons -->
         <div class="buttons-container">
-            <a href="{{ route('excel.upload') }}" class="back-btn"><i class="fas fa-arrow-left"></i> العودة لرفع الملفات</a>
-            <a href="{{ route('excel.downloadMissingData') }}" class="download-btn"><i class="fas fa-download"></i> تحميل البيانات المفقودة</a>
-            <a href="{{ route('excel.data') }}" class="download-btn"><i class="fas fa-eye"></i> عرض البيانات التي تم معالجتها</a>
+            <a href="{{ route('excel.upload') }}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                العودة لرفع الملفات
+            </a>
+            <a href="{{ route('excel.downloadMissingData') }}" class="download-btn">
+                <i class="fas fa-download"></i>
+                تحميل البيانات المفقودة
+            </a>
+            <a href="{{ route('excel.data') }}" class="download-btn">
+                <i class="fas fa-eye"></i>
+                عرض البيانات التي تم معالجتها
+            </a>
         </div>
 
         <!-- Data Table -->

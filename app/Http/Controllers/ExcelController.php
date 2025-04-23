@@ -10,6 +10,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Jobs\ProcessExcelImport;
 use App\Models\Data;
 use App\Models\MissingData;
+use Illuminate\Support\Facades\Log;
 
 class ExcelController extends Controller
 {
@@ -31,19 +32,54 @@ class ExcelController extends Controller
      */
     public function import(Request $request)
     {
-        // Validate the uploaded file to ensure it's an Excel file (xlsx or xls)
+        // تحقق من صحة الملف المرفوع
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
         ]);
 
-        // Store the uploaded file in the 'temp' folder within the storage directory
-        $path = $request->file('file')->store('temp');
+        try {
+            // حفظ الملف في مجلد مؤقت
+            $path = $request->file('file')->store('temp');
 
-        // Dispatch the job to process the Excel file in the background using the queue
-        ProcessExcelImport::dispatch($path, Str::uuid());
+            // تنفيذ عملية الاستيراد في الخلفية
+            ProcessExcelImport::dispatch($path, Str::uuid());
 
-        // Redirect back to the 'excel.data' route with a success message
-        return redirect()->route('excel.data')->with('success', 'Data has been processed successfully!');
+            // إعادة التوجيه مع رسالة نجاح
+            return redirect()->route('excel.data')->with('success', 'تم رفع ومعالجة البيانات بنجاح!');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            // أخطاء التحقق الخاصة بالإكسل
+            $failures = $e->failures();
+
+            // إرسال المستخدم إلى صفحة الأخطاء مع تفاصيل المشاكل
+            return view('excel.importerror', [
+                'message' => 'حدثت أخطاء في بعض الصفوف أو الأعمدة في ملف الإكسل. يرجى مراجعة التفاصيل.',
+                'failures' => $failures,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // أخطاء قواعد البيانات (مثل مشاكل النوع أو المفاتيح الفريدة)
+            Log::error('خطأ في قاعدة البيانات أثناء استيراد الإكسل: ' . $e->getMessage());
+
+            return view('excel.importerror', [
+                'message' => 'حدثت مشكلة في حفظ البيانات في قاعدة البيانات. يرجى التأكد من صحة أنواع البيانات وعدم وجود تكرارات.',
+                'errorDetails' => $e->getMessage(),
+            ]);
+        } catch (\ErrorException $e) {
+            // أخطاء PHP مثل نقص الأعمدة أو دوال غير معرفة
+            Log::error('خطأ عام في التنفيذ: ' . $e->getMessage());
+
+            return view('excel.importerror', [
+                'message' => 'حدث خطأ أثناء قراءة أو تنفيذ الملف. هناك مشكلة في تنسيق الملف أو أسماء الأعمدة. يرجى التأكد من أن جميع الأعمدة المطلوبة موجودة في الملف.',
+                'errorDetails' => $e->getMessage(),
+            ]);
+        } catch (\Throwable $e) {
+            // أي خطأ عام غير متوقع
+            Log::error('خطأ غير متوقع في استيراد الإكسل: ' . $e->getMessage());
+
+            return view('excel.importerror', [
+                'message' => 'حدث خطأ غير متوقع أثناء الاستيراد. الرجاء المحاولة لاحقاً أو التواصل مع الدعم الفني.',
+                'errorDetails' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

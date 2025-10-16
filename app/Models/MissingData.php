@@ -10,6 +10,6 @@ class MissingData extends Model
     use HasFactory;
 
     // تحديد اسم الجدول في قاعدة البيانات
-    protected $table = 'missingData';
+    protected $table = 'missingdata';
 
 }
